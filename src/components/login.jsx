@@ -1,12 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import users from '/public/data/users.json';
 import '/src/css/login.css';
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [users, setUsers] = useState([]);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch('http://localhost:4000/users');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                setUsers(data);
+            } catch (error) {
+                console.error(`Failed to fetch users: ${error.message}`);
+            }
+        };
+
+        fetchUsers();
+    }, []);
 
     const eventHandle = (e) => {
         e.preventDefault();
@@ -18,6 +35,7 @@ const Login = () => {
             navigate('/mainPage', { state: { currentUser: user } });
         } else {
             console.log('Invalid credentials');
+            alert("Invalid credentials. Please try again or Sign up if you do not have an account.");
         }
     };
 
@@ -36,14 +54,13 @@ const Login = () => {
                     />
                     <input
                         className="input password passwordInput"
-
                         type="password"
                         placeholder="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
                     <button className="submitLogin" type="submit">Log in</button>
-                    <p>or <a href="" onClick={() => navigate('/signUp')} id="signUpLink">Sign up</a></p>
+                    <p>or <a href="#" onClick={() => navigate('/signUp')} id="signUpLink">Sign up</a></p>
                 </form>
             </div>
         </div>
